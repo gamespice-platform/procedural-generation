@@ -9,7 +9,7 @@ The pipeline produces a document (`DotProcGenDoc`: a grid, rooms, links and mark
 
 ## Install
 
-1. Copy `addons/dot_procedural_generation/` and [dot-core](https://github.com/modcommunity/dot-core)'s `addons/dot_core/` into your project.
+1. Copy `addons/dot_procedural_generation/` and [dot-core](https://github.com/gamespice-platform/core)'s `addons/dot_core/` into your project.
 2. Enable it in *Project > Project Settings > Plugins*.
 
 Only dot-core is required.
@@ -73,6 +73,6 @@ See [docs/design.md](docs/design.md) and [docs/history.md](docs/history.md). The
 
 ## Status and licence
 
-Part of the TMC **dot-\*** family of Godot addons. Written with Claude Code and maintained by `gamemann`. Every addon has headless tests, but little of this has been played by real users yet, so expect rough edges and please [open an issue](https://github.com/modcommunity/dot-procedural-generation/issues) when you hit one.
+Part of the TMC **dot-\*** family of Godot addons. Written with Claude Code and maintained by `gamemann`. Every addon has headless tests, but little of this has been played by real users yet, so expect rough edges and please [open an issue](https://github.com/gamespice-platform/procedural-generation/issues) when you hit one.
 
 MIT licence, see [LICENSE](LICENSE). The only closed part of the TMC platform is the web back end; you can use your own instead of TMC's.
