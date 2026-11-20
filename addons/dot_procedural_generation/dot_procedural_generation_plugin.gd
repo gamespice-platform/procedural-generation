@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-## Editor entry point for dot-procedural-generation. Registers inspector types only.
+## Editor entry point for GameSpice Procedural Generation. Registers inspector types only.
 ##
 ## No autoloads: a server generating the next map while the current one is still being
 ## played is two runners in one process, and a global would make them one.

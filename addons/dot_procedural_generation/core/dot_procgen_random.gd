@@ -1,13 +1,13 @@
 class_name DotProcGenRandom
 extends RefCounted
 
-## A counter-based, splittable random stream: this addon's names over dot-core's
+## A counter-based, splittable random stream: this addon's names over GameSpice Core's
 ## [DotRandomStream], which draws every number.
 ##
 ## [b]A wrapper, not a second implementation, and it used to be one.[/b] It was written
 ## when the family's random stream lived in a separate addon (dot-randomness) that this one
 ## could not depend on, so it carried its own copy of the same SplitMix64 mixer. That
-## addon folded into dot-core, which every addon may depend on, and two copies of one
+## addon folded into GameSpice Core, which every addon may depend on, and two copies of one
 ## algorithm are two chances for them to drift. The names here ([method unit],
 ## [method range_i], [method shuffled]) are kept because every generator step calls them.
 ##
@@ -41,7 +41,7 @@ func stream(name: StringName) -> DotProcGenRandom:
 	return _wrap(_s.stream(name))
 
 
-## The stream underneath, for a step that wants dot-core's wider vocabulary
+## The stream underneath, for a step that wants GameSpice Core's wider vocabulary
 ## ([method DotRandomStream.next_gaussian], [method DotRandomStream.next_weighted]).
 func core() -> DotRandomStream:
 	return _s
@@ -91,7 +91,7 @@ func counter() -> int:
 	return _s.counter()
 
 
-## dot-core's mixer, under the name the pipeline's retry seeding has always called. Kept so
+## GameSpice Core's mixer, under the name the pipeline's retry seeding has always called. Kept so
 ## a retry's seed (mix(root ^ mix(attempt))) is exactly what it was.
 static func _mix(x: int) -> int:
 	return DotRandomStream._mix(x)

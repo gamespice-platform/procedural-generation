@@ -4,7 +4,7 @@ extends RefCounted
 ## What a generator produces: a document, not a world.
 ##
 ## [b]This is the whole architecture in one sentence, and it is the same sentence as
-## dot-loadout's and dot-user-avatar's.[/b] Generation produces data; a builder turns data
+## GameSpice Loadout's and GameSpice User Avatar's.[/b] Generation produces data; a builder turns data
 ## into nodes. Four things fall out of that and none of them is available to a generator
 ## that instantiates as it goes:
 ##
@@ -18,7 +18,7 @@ extends RefCounted
 ##
 ## [b]2D and 3D share it.[/b] The grid is a grid. A top-down game reads it as tiles and a
 ## first-person game extrudes it into walls, with one generator and no second code path —
-## the same trick dot-npc uses when it maps a 2D world onto the XZ plane.
+## the same trick GameSpice NPC uses when it maps a 2D world onto the XZ plane.
 ##
 ## [b]It can be generated over several frames.[/b] A half-built document is data that is
 ## not finished; a half-built world is a world a player can walk into.
@@ -177,7 +177,7 @@ func cell_of_index(index: int) -> Vector2i:
 
 ## A stable fingerprint of the whole document.
 ##
-## [b]What two peers compare instead of comparing maps.[/b] Same idea as dot-net's message
+## [b]What two peers compare instead of comparing maps.[/b] Same idea as GameSpice Net's message
 ## schema hash, and it has to be built the same careful way: everything that goes in is
 ## ordered by construction, and nothing is sorted by [StringName]. Godot compares
 ## StringNames by their interned pointer, so a sort over them gives two peers two different
@@ -187,7 +187,7 @@ func fingerprint() -> String:
 	var ctx := HashingContext.new()
 	ctx.start(HashingContext.HASH_SHA256)
 	ctx.update(("%d:%d|" % [width, height]).to_utf8_buffer())
-	# update() errors on empty input -- dot-cloud found that hashing an empty schema -- so
+	# update() errors on empty input -- GameSpice Cloud found that hashing an empty schema -- so
 	# an empty grid contributes its header and nothing else.
 	if not cells.is_empty():
 		ctx.update(cells)

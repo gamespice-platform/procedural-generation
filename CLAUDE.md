@@ -1,10 +1,10 @@
-# dot-procedural-generation
+# GameSpice Procedural Generation
 
 Generation that produces a document, and refuses one nobody could finish: rooms (BSP), caves (cellular automata), connections with loops, markers, a validator that floods from the start, a retrying pipeline with a fingerprint, and a runner that slices across frames.
 
 Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is specific to procedural generation.
 
-**The distributable is `addons/dot_procedural_generation/`.** It requires [dot-core](../dot-core) and nothing else (`ln -s ../../dot-core/addons/dot_core addons/dot_core`, gitignored). The classes are `DotProcGen*`. The folder is not `dot_procgen` because bootstrap and dot-ci map an addon folder to its repository by replacing `_` with `-` (the weapon pack is the one listed exception), and a shorter folder would need another.
+**The distributable is `addons/dot_procedural_generation/`.** It requires [GameSpice Core](../dot-core) and nothing else (`ln -s ../../dot-core/addons/dot_core addons/dot_core`, gitignored). The classes are `DotProcGen*`. The folder is not `dot_procgen` because bootstrap and dot-ci map an addon folder to its repository by replacing `_` with `-` (the weapon pack is the one listed exception), and a shorter folder would need another.
 
 ## Read before
 
@@ -18,7 +18,7 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is sp
 | Path | What |
 | --- | --- |
 | `core/dot_procgen_doc.gd` | `DotProcGenDoc`: grid, rooms, links, markers; `reachable_from`, `fingerprint`, `to_ascii` |
-| `core/dot_procgen_random.gd` | `DotProcGenRandom`: this addon's names over dot-core's `DotRandomStream`, which draws every number; `core()` reaches the stream |
+| `core/dot_procgen_random.gd` | `DotProcGenRandom`: this addon's names over GameSpice Core's `DotRandomStream`, which draws every number; `core()` reaches the stream |
 | `core/dot_procgen_step.gd` | `DotProcGenStep`: one pass, the extension point |
 | `core/dot_procgen_pipeline.gd` | `DotProcGenPipeline`: steps, `validate()`, retries (`max_attempts`), `seed_source` |
 | `steps/` | `DotProcGenRooms`, `...Cave`, `...Connect` (`extra_loops`), `...Markers`, `...Validate` (`fill_unreachable`, `min_connected_fraction`) |
@@ -44,6 +44,6 @@ The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything))
 - Slice only between steps, on the main thread; sliced and blocking runs must give the same fingerprint. [design](docs/design.md#decisions)
 - Type array literals you iterate (`const X: Array[Vector2i]`); `Rect2i` is end-exclusive. [history](docs/history.md)
 
-- `DotProcGenRandom` draws nothing itself: it wraps dot-core's `DotRandomStream`. Never give it its own mixer again. [history](docs/history.md)
+- `DotProcGenRandom` draws nothing itself: it wraps GameSpice Core's `DotRandomStream`. Never give it its own mixer again. [history](docs/history.md)
 
 Deliberately not here: a builder, noise terrain, wave function collapse, networking. [design](docs/design.md#deliberately-not-here)

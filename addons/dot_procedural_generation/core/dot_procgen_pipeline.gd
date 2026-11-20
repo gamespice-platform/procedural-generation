@@ -24,7 +24,7 @@ extends Resource
 ## them could not be finished. *A map that loads is not a level.*
 ##
 ## [b]2. It has a fingerprint.[/b] Two peers compare [method fingerprint] and a seed, not
-## a map. Same idea as dot-net's message schema hash — and the same failure if it is got
+## a map. Same idea as GameSpice Net's message schema hash — and the same failure if it is got
 ## wrong, because a check that exists to catch a mismatch is the one thing that can hide
 ## one. Every step's settings go into it, in list order, with nothing sorted by
 ## [StringName]: Godot compares those by their interned pointer, which gave two peers two
@@ -48,7 +48,7 @@ const CHANNEL := "procgen"
 ## A name mixed into every seed, so two pipelines on one seed are two different worlds.
 @export var pipeline_name: StringName = &"world"
 
-## Anything with [code]seed_for(name) -> int[/code]. dot-core's [DotRandomManager], duck-typed.
+## Anything with [code]seed_for(name) -> int[/code]. GameSpice Core's [DotRandomManager], duck-typed.
 ##
 ## How a generated world comes out of the session's seed rather than out of one of its
 ## own, without this addon depending on that one. Null means the seed passed to

@@ -5,7 +5,7 @@ extends DotProcGenStep
 ## Puts a kind of thing in the world: spawns, loot, monsters, lights.
 ##
 ## One step, configured, rather than a class per kind. A spawn point and a chest are both
-## "a kind, a count, and a rule about where" — which is the same reduction dot-effects
+## "a kind, a count, and a rule about where" — which is the same reduction GameSpice Effects
 ## made when it found nineteen of twenty-one status effects were the same six fields.
 
 enum Placement {
