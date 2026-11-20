@@ -1,4 +1,4 @@
-[![dot-procedural-generation - GameSpice addon](docs/banner.png)](https://moddingcommunity.com/a/242-dot-procedural-generation)
+[![Procedural Generation - GameSpice addon](docs/banner.png)](https://moddingcommunity.com/a/242-dot-procedural-generation)
 
 Generated levels as an ordered pipeline of deterministic steps, with a validator that rejects maps nobody could finish.
 
