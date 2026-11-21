@@ -1,6 +1,6 @@
 @tool
-class_name DotProcGenMarkers
-extends DotProcGenStep
+class_name GSProcGenMarkers
+extends GSProcGenStep
 
 ## Puts a kind of thing in the world: spawns, loot, monsters, lights.
 ##
@@ -39,13 +39,13 @@ func _fingerprint_keys() -> PackedStringArray:
 	return PackedStringArray(["kind", "placement", "count", "min_separation", "attempts_each"])
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if kind == &"":
-		return DotResult.fail(DotError.CODE_INVALID, "a marker step with no kind")
-	return DotResult.success(null)
+		return GSResult.fail(GSError.CODE_INVALID, "a marker step with no kind")
+	return GSResult.success(null)
 
 
-func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
+func apply(doc: GSProcGenDoc, stream: GSProcGenRandom) -> GSResult:
 	match placement:
 		Placement.ROOM_CENTRE:
 			var wanted := count if count > 0 else doc.rooms.size()
@@ -56,7 +56,7 @@ func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
 
 		Placement.FURTHEST_ROOM:
 			if doc.rooms.is_empty():
-				return DotResult.success(null)
+				return GSResult.success(null)
 			var first: Rect2i = doc.rooms[0]
 			var best := 0
 			var best_d := -1.0
@@ -92,16 +92,16 @@ func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
 				# for four chests and a pipeline asking for twenty is a configuration
 				# mistake, and the honest answer is to say so and let the pipeline's own
 				# retry decide -- not to loop until one fits.
-				return DotResult.fail(
-					DotError.CODE_STATE,
+				return GSResult.fail(
+					GSError.CODE_STATE,
 					"only placed %d of %d '%s'" % [placed, count, kind],
 					"not enough walkable space at a separation of %d" % min_separation
 				)
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
-func _too_close(doc: DotProcGenDoc, cell: Vector2i) -> bool:
+func _too_close(doc: GSProcGenDoc, cell: Vector2i) -> bool:
 	var limit := min_separation * min_separation
 	for m in doc.markers:
 		var other: Vector2i = m.get("cell", Vector2i.ZERO)

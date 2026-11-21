@@ -1,18 +1,18 @@
 @tool
-class_name DotProcGenPipeline
+class_name GSProcGenPipeline
 extends Resource
 
 ## An ordered list of steps, a seed, and the two things that make it safe to ship.
 ##
 ## [codeblock]
-## var p := DotProcGenPipeline.new()
+## var p := GSProcGenPipeline.new()
 ## p.width = 64
 ## p.height = 64
 ## p.add(rooms_step).add(connect_step).add(spawns_step).add(validate_step)
 ##
 ## var res := p.generate(seed)
 ## if res.ok:
-##     build_world(res.value as DotProcGenDoc)
+##     build_world(res.value as GSProcGenDoc)
 ## [/codeblock]
 ##
 ## [b]1. It refuses an unfinishable map rather than shipping one.[/b] A validate step
@@ -35,7 +35,7 @@ const CHANNEL := "procgen"
 @export var width: int = 64
 @export var height: int = 64
 
-@export var steps: Array[DotProcGenStep] = []
+@export var steps: Array[GSProcGenStep] = []
 
 ## How many seeds to try before giving up.
 ##
@@ -48,7 +48,7 @@ const CHANNEL := "procgen"
 ## A name mixed into every seed, so two pipelines on one seed are two different worlds.
 @export var pipeline_name: StringName = &"world"
 
-## Anything with [code]seed_for(name) -> int[/code]. GameSpice Core's [DotRandomManager], duck-typed.
+## Anything with [code]seed_for(name) -> int[/code]. GameSpice Core's [GSRandomManager], duck-typed.
 ##
 ## How a generated world comes out of the session's seed rather than out of one of its
 ## own, without this addon depending on that one. Null means the seed passed to
@@ -56,24 +56,24 @@ const CHANNEL := "procgen"
 var seed_source: Object = null
 
 
-func add(step: DotProcGenStep) -> DotProcGenPipeline:
+func add(step: GSProcGenStep) -> GSProcGenPipeline:
 	steps.append(step)
 	return self
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if width <= 0 or height <= 0:
-		return DotResult.fail(DotError.CODE_INVALID, "a pipeline with no size")
+		return GSResult.fail(GSError.CODE_INVALID, "a pipeline with no size")
 	if steps.is_empty():
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"a pipeline with no steps",
 			"it would produce a solid block, which is a legitimate document and never what anybody meant"
 		)
 	var names := {}
 	for s in steps:
 		if s == null:
-			return DotResult.fail(DotError.CODE_INVALID, "a null step in the pipeline")
+			return GSResult.fail(GSError.CODE_INVALID, "a null step in the pipeline")
 		var res := s.validate()
 		if not res.ok:
 			return res.wrap("step '%s'" % s.step_name)
@@ -81,13 +81,13 @@ func validate() -> DotResult:
 			# Two steps sharing a name share a stream, so the second one continues where
 			# the first left off -- which is not wrong, exactly, but it means reordering
 			# them changes both, and nobody expects that from a rename.
-			return DotResult.fail(
-				DotError.CODE_INVALID,
+			return GSResult.fail(
+				GSError.CODE_INVALID,
 				"two steps are both called '%s'" % s.step_name,
 				"a step's name is its random stream; two with one name share it"
 			)
 		names[s.step_name] = true
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 ## Generates a document, retrying on a new seed when a step refuses the result.
@@ -96,7 +96,7 @@ func validate() -> DotResult:
 ## because "which seed did this come from" is the first question about any generated world
 ## and the answer being in the document is the difference between a reproducible bug report
 ## and a story.
-func generate(base_seed: int) -> DotResult:
+func generate(base_seed: int) -> GSResult:
 	var res := validate()
 	if not res.ok:
 		return res
@@ -105,17 +105,17 @@ func generate(base_seed: int) -> DotResult:
 	if seed_source != null and seed_source.has_method("seed_for"):
 		root = int(seed_source.call("seed_for", pipeline_name))
 
-	var last_failure := DotResult.fail(DotError.CODE_STATE, "nothing ran")
+	var last_failure := GSResult.fail(GSError.CODE_STATE, "nothing ran")
 	for attempt in range(max_attempts):
 		# The attempt is mixed into the seed rather than added. Adding gives seed+1, which
 		# is somebody else's world -- so a failure on seed 41 quietly hands a player the
 		# map that seed 42 should have produced, and two people comparing notes disagree.
-		var attempt_seed := DotProcGenRandom._mix(root ^ DotProcGenRandom._mix(attempt))
+		var attempt_seed := GSProcGenRandom._mix(root ^ GSProcGenRandom._mix(attempt))
 		var out := _run_once(attempt_seed, root, attempt)
 		if out.ok:
 			return out
 		last_failure = out
-		DotLog.debug(
+		GSLog.debug(
 			CHANNEL,
 			"generation refused, trying another seed",
 			{"attempt": attempt + 1, "why": out.error.message}
@@ -126,14 +126,14 @@ func generate(base_seed: int) -> DotResult:
 	)
 
 
-func _run_once(attempt_seed: int, root_seed: int, attempt: int) -> DotResult:
-	var doc := DotProcGenDoc.new()
+func _run_once(attempt_seed: int, root_seed: int, attempt: int) -> GSResult:
+	var doc := GSProcGenDoc.new()
 	doc.resize(width, height)
 	doc.meta["seed"] = root_seed
 	doc.meta["attempt"] = attempt
 	doc.meta["pipeline"] = String(pipeline_name)
 
-	var root := DotProcGenRandom.new(attempt_seed, pipeline_name)
+	var root := GSProcGenRandom.new(attempt_seed, pipeline_name)
 	for s in steps:
 		if not s.enabled:
 			continue
@@ -142,7 +142,7 @@ func _run_once(attempt_seed: int, root_seed: int, attempt: int) -> DotResult:
 			return res.wrap("step '%s'" % s.step_name)
 
 	doc.meta["fingerprint"] = doc.fingerprint()
-	return DotResult.success(doc)
+	return GSResult.success(doc)
 
 
 ## What two peers compare, alongside the seed.

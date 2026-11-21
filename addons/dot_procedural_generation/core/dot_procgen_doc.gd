@@ -1,4 +1,4 @@
-class_name DotProcGenDoc
+class_name GSProcGenDoc
 extends RefCounted
 
 ## What a generator produces: a document, not a world.
@@ -140,7 +140,7 @@ func markers_of(kind: StringName) -> Array[Dictionary]:
 
 ## Every walkable cell reachable from [param from], by four-way flood fill.
 ##
-## The engine of [DotProcGenValidate], and useful on its own to a builder that wants to
+## The engine of [GSProcGenValidate], and useful on its own to a builder that wants to
 ## place something "somewhere a player can get to".
 func reachable_from(from: Vector2i) -> PackedInt32Array:
 	var seen := PackedByteArray()

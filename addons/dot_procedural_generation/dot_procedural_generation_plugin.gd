@@ -10,7 +10,7 @@ const _ICON := "res://addons/dot_procedural_generation/icon_placeholder.svg"
 
 const _TYPES := [
 	[
-		"DotProcGenRunner",
+		"GSProcGenRunner",
 		"Node",
 		"res://addons/dot_procedural_generation/runtime/dot_procgen_runner.gd",
 	],

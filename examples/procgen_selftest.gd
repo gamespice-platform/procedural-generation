@@ -21,7 +21,7 @@ var _section_count := 0
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	await _run()
 
 
@@ -57,37 +57,37 @@ func _run() -> void:
 	get_tree().quit(1 if _failed > 0 else 0)
 
 
-func _dungeon(w: int = 48, h: int = 48) -> DotProcGenPipeline:
-	var p := DotProcGenPipeline.new()
+func _dungeon(w: int = 48, h: int = 48) -> GSProcGenPipeline:
+	var p := GSProcGenPipeline.new()
 	p.width = w
 	p.height = h
 	p.pipeline_name = &"test_dungeon"
 
-	var rooms := DotProcGenRooms.new()
+	var rooms := GSProcGenRooms.new()
 	rooms.step_name = &"rooms"
 	rooms.min_leaf = 10
 	rooms.min_rooms = 4
 	p.add(rooms)
 
-	var connect := DotProcGenConnect.new()
+	var connect := GSProcGenConnect.new()
 	connect.step_name = &"corridors"
 	connect.extra_loops = 2
 	p.add(connect)
 
-	var spawn := DotProcGenMarkers.new()
+	var spawn := GSProcGenMarkers.new()
 	spawn.step_name = &"spawn"
 	spawn.kind = &"spawn"
-	spawn.placement = DotProcGenMarkers.Placement.ROOM_CENTRE
+	spawn.placement = GSProcGenMarkers.Placement.ROOM_CENTRE
 	spawn.count = 1
 	p.add(spawn)
 
-	var exit_marker := DotProcGenMarkers.new()
+	var exit_marker := GSProcGenMarkers.new()
 	exit_marker.step_name = &"exit"
 	exit_marker.kind = &"exit"
-	exit_marker.placement = DotProcGenMarkers.Placement.FURTHEST_ROOM
+	exit_marker.placement = GSProcGenMarkers.Placement.FURTHEST_ROOM
 	p.add(exit_marker)
 
-	var check := DotProcGenValidate.new()
+	var check := GSProcGenValidate.new()
 	check.step_name = &"reachable"
 	check.from_kind = &"spawn"
 	p.add(check)
@@ -100,37 +100,37 @@ func _dungeon(w: int = 48, h: int = 48) -> DotProcGenPipeline:
 func _test_document() -> void:
 	_section("A document, which is what a generator produces")
 
-	var d := DotProcGenDoc.new()
+	var d := GSProcGenDoc.new()
 	d.resize(8, 6)
 	_check(d.width == 8 and d.height == 6, "it has a size")
 	_check(d.cells.size() == 48, "and exactly that many cells")
-	_check(d.count_of(DotProcGenDoc.SOLID) == 48, "starting solid")
+	_check(d.count_of(GSProcGenDoc.SOLID) == 48, "starting solid")
 
-	d.set_at(3, 3, DotProcGenDoc.FLOOR)
-	_check(d.at(3, 3) == DotProcGenDoc.FLOOR, "a cell can be written and read")
+	d.set_at(3, 3, GSProcGenDoc.FLOOR)
+	_check(d.at(3, 3) == GSProcGenDoc.FLOOR, "a cell can be written and read")
 	_check(
-		d.at(-1, 3) == DotProcGenDoc.SOLID and d.at(99, 3) == DotProcGenDoc.SOLID,
+		d.at(-1, 3) == GSProcGenDoc.SOLID and d.at(99, 3) == GSProcGenDoc.SOLID,
 		"and out of bounds is solid rather than an error, so no step needs a bounds check"
 	)
 
 	# Rect2i(1, 1, 3, 3) covers x and y in [1, 4), so it contains the cell written above
 	# rather than adding to it. Getting that wrong by one is the commonest arithmetic
 	# mistake in grid code and is why the count is asserted rather than the corners.
-	d.fill_rect(Rect2i(1, 1, 3, 3), DotProcGenDoc.FLOOR)
-	_check(d.count_of(DotProcGenDoc.FLOOR) == 9, "a rectangle fills, end-exclusive")
-	_check(d.at(4, 4) == DotProcGenDoc.SOLID, "and does not reach its end corner")
+	d.fill_rect(Rect2i(1, 1, 3, 3), GSProcGenDoc.FLOOR)
+	_check(d.count_of(GSProcGenDoc.FLOOR) == 9, "a rectangle fills, end-exclusive")
+	_check(d.at(4, 4) == GSProcGenDoc.SOLID, "and does not reach its end corner")
 
 	# `at_v`, `set_v` and `cell_of_index` had no caller. They are the spellings every step
 	# in this addon reaches for -- a neighbour is a Vector2i, and NEIGHBOURS is an
 	# Array[Vector2i] -- so they are the ones a game will use and the ones nothing checked.
-	d.set_v(Vector2i(6, 1), DotProcGenDoc.FLOOR)
-	_check(d.at_v(Vector2i(6, 1)) == DotProcGenDoc.FLOOR, "a cell can be written and read by vector")
+	d.set_v(Vector2i(6, 1), GSProcGenDoc.FLOOR)
+	_check(d.at_v(Vector2i(6, 1)) == GSProcGenDoc.FLOOR, "a cell can be written and read by vector")
 	_check(d.at_v(Vector2i(6, 1)) == d.at(6, 1), "which is the same cell as the pair of ints")
 	_check(
-		d.at_v(Vector2i(-1, -1)) == DotProcGenDoc.SOLID,
+		d.at_v(Vector2i(-1, -1)) == GSProcGenDoc.SOLID,
 		"and out of bounds is solid by vector too, rather than only by pair"
 	)
-	d.set_v(Vector2i(6, 1), DotProcGenDoc.SOLID)
+	d.set_v(Vector2i(6, 1), GSProcGenDoc.SOLID)
 
 	# The inverse of the row-major index every cell is stored at. Asserted as a round trip
 	# rather than on one value: an encoder and a decoder that have never met is this
@@ -166,15 +166,15 @@ func _test_document() -> void:
 func _test_random() -> void:
 	_section("A second implementation of the stream, on purpose")
 
-	var a := DotProcGenRandom.new(1234, &"world")
-	var b := DotProcGenRandom.new(1234, &"world")
+	var a := GSProcGenRandom.new(1234, &"world")
+	var b := GSProcGenRandom.new(1234, &"world")
 	var agreed := true
 	for _i in range(200):
 		if a.next() != b.next():
 			agreed = false
 	_check(agreed, "one seed and one name is one stream")
 
-	var root := DotProcGenRandom.new(99, &"root")
+	var root := GSProcGenRandom.new(99, &"root")
 	var rooms := root.stream(&"rooms")
 	var props := root.stream(&"props")
 	var expected: Array[float] = []
@@ -183,7 +183,7 @@ func _test_random() -> void:
 
 	# The property that makes a pipeline editable: a step added later cannot change the
 	# numbers a step before it drew.
-	var root2 := DotProcGenRandom.new(99, &"root")
+	var root2 := GSProcGenRandom.new(99, &"root")
 	var props2 := root2.stream(&"props")
 	for _i in range(500):
 		props2.unit()
@@ -224,7 +224,7 @@ func _test_rooms() -> void:
 
 	var res := _dungeon().generate(7)
 	_check(res.ok, "a dungeon generates")
-	var doc := res.value as DotProcGenDoc
+	var doc := res.value as GSProcGenDoc
 	_check(doc.rooms.size() >= 4, "with at least the rooms it asked for (%d)" % doc.rooms.size())
 
 	# A room flush against its leaf's edge meets its neighbour with no wall between them,
@@ -263,7 +263,7 @@ func _test_connectivity() -> void:
 
 	var res := _dungeon().generate(11)
 	_check(res.ok, "it generates")
-	var doc := res.value as DotProcGenDoc
+	var doc := res.value as GSProcGenDoc
 
 	var spawn: Vector2i = doc.markers_of(&"spawn")[0]["cell"]
 	var reached := doc.reachable_from(spawn)
@@ -302,60 +302,60 @@ func _test_validation_refuses() -> void:
 
 	# Hand-built rather than generated, because the whole point is to produce the case a
 	# generator produces about one seed in thirty and prove it is caught.
-	var doc := DotProcGenDoc.new()
+	var doc := GSProcGenDoc.new()
 	doc.resize(20, 10)
-	doc.fill_rect(Rect2i(1, 1, 6, 6), DotProcGenDoc.FLOOR)
-	doc.fill_rect(Rect2i(12, 1, 6, 6), DotProcGenDoc.FLOOR)
+	doc.fill_rect(Rect2i(1, 1, 6, 6), GSProcGenDoc.FLOOR)
+	doc.fill_rect(Rect2i(12, 1, 6, 6), GSProcGenDoc.FLOOR)
 	doc.add_marker(&"spawn", Vector2i(3, 3))
 	doc.add_marker(&"exit", Vector2i(14, 3))
 
-	var check := DotProcGenValidate.new()
+	var check := GSProcGenValidate.new()
 	check.from_kind = &"spawn"
 	check.min_connected_fraction = 0.0
 	check.fill_unreachable = false
-	var res := check.apply(doc, DotProcGenRandom.new())
+	var res := check.apply(doc, GSProcGenRandom.new())
 	_check(not res.ok, "an exit sealed off from the spawn is refused")
 	_check(res.error.message.contains("exit"), "naming what could not be reached")
 
 	# The subtler half: connected, and mostly wasted. One thread of corridor to a far wing
 	# satisfies "everything is reachable" while nine tenths of the map is a sealed pocket.
-	var mostly := DotProcGenDoc.new()
+	var mostly := GSProcGenDoc.new()
 	mostly.resize(30, 30)
-	mostly.fill_rect(Rect2i(1, 1, 4, 4), DotProcGenDoc.FLOOR)
-	mostly.fill_rect(Rect2i(10, 10, 18, 18), DotProcGenDoc.FLOOR)
+	mostly.fill_rect(Rect2i(1, 1, 4, 4), GSProcGenDoc.FLOOR)
+	mostly.fill_rect(Rect2i(10, 10, 18, 18), GSProcGenDoc.FLOOR)
 	mostly.add_marker(&"spawn", Vector2i(2, 2))
-	var strict := DotProcGenValidate.new()
+	var strict := GSProcGenValidate.new()
 	strict.from_kind = &"spawn"
 	strict.min_connected_fraction = 0.6
 	strict.fill_unreachable = false
 	_check(
-		not strict.apply(mostly, DotProcGenRandom.new()).ok,
+		not strict.apply(mostly, GSProcGenRandom.new()).ok,
 		"and so is a map that is connected and nine tenths wasted"
 	)
 
 	# Filling in is usually better than failing: a cave with its sealed pockets filled is
 	# a good cave, and the same cave with them left in has rooms that exist for a
 	# navigation mesh and not for a player.
-	var filler := DotProcGenValidate.new()
+	var filler := GSProcGenValidate.new()
 	filler.from_kind = &"spawn"
 	filler.min_connected_fraction = 0.0
 	filler.fill_unreachable = true
-	var before := mostly.count_of(DotProcGenDoc.FLOOR)
-	_check(filler.apply(mostly, DotProcGenRandom.new()).ok, "with filling on, it passes")
-	_check(mostly.count_of(DotProcGenDoc.FLOOR) < before, "and the unreachable part is gone")
+	var before := mostly.count_of(GSProcGenDoc.FLOOR)
+	_check(filler.apply(mostly, GSProcGenRandom.new()).ok, "with filling on, it passes")
+	_check(mostly.count_of(GSProcGenDoc.FLOOR) < before, "and the unreachable part is gone")
 	_check(int(mostly.meta.get("unreachable_filled", 0)) > 0, "and it says how much it filled")
 
-	var no_start := DotProcGenDoc.new()
+	var no_start := GSProcGenDoc.new()
 	no_start.resize(10, 10)
 	_check(
-		not check.apply(no_start, DotProcGenRandom.new()).ok,
+		not check.apply(no_start, GSProcGenRandom.new()).ok,
 		"a validate step with nothing to flood from says so rather than passing"
 	)
 
-	var buried := DotProcGenDoc.new()
+	var buried := GSProcGenDoc.new()
 	buried.resize(10, 10)
 	buried.add_marker(&"spawn", Vector2i(5, 5))
-	var res_buried := check.apply(buried, DotProcGenRandom.new())
+	var res_buried := check.apply(buried, GSProcGenRandom.new())
 	_check(not res_buried.ok, "and a spawn inside a wall is refused")
 	_check(res_buried.error.message.contains("wall"), "by name")
 
@@ -368,14 +368,14 @@ func _test_determinism_and_fingerprint() -> void:
 	var a := _dungeon().generate(4242)
 	var b := _dungeon().generate(4242)
 	_check(a.ok and b.ok, "two runs of one seed both succeed")
-	var doc_a := a.value as DotProcGenDoc
-	var doc_b := b.value as DotProcGenDoc
+	var doc_a := a.value as GSProcGenDoc
+	var doc_b := b.value as GSProcGenDoc
 	_check(doc_a.cells == doc_b.cells, "and produce byte-identical maps")
 	_check(doc_a.fingerprint() == doc_b.fingerprint(), "so the fingerprints agree")
 
 	var c := _dungeon().generate(4243)
 	_check(
-		(c.value as DotProcGenDoc).fingerprint() != doc_a.fingerprint(),
+		(c.value as GSProcGenDoc).fingerprint() != doc_a.fingerprint(),
 		"a different seed is a different map"
 	)
 
@@ -423,13 +423,13 @@ func _test_retries() -> void:
 	# would quietly hand a player the map seed 42 should have produced -- and two people
 	# comparing notes would disagree about what seed 41 looks like.
 	var direct := _dungeon(48, 48).generate(4)
-	var doc_many := many.value as DotProcGenDoc
+	var doc_many := many.value as GSProcGenDoc
 	_check(
-		doc_many.fingerprint() != (direct.value as DotProcGenDoc).fingerprint(),
+		doc_many.fingerprint() != (direct.value as GSProcGenDoc).fingerprint(),
 		"and a retry is not simply the next seed's map"
 	)
 
-	var empty := DotProcGenPipeline.new()
+	var empty := GSProcGenPipeline.new()
 	_check(not empty.validate().ok, "a pipeline with no steps is refused")
 
 	var clash := _dungeon()
@@ -445,13 +445,13 @@ func _test_retries() -> void:
 func _test_sliced_runner() -> void:
 	_section("Generated across frames, on the main thread")
 
-	var runner := DotProcGenRunner.new()
+	var runner := GSProcGenRunner.new()
 	runner.pipeline = _dungeon()
 	runner.frame_budget_ms = 1
 	add_child(runner)
 
 	var done := []
-	runner.finished.connect(func(doc: DotProcGenDoc, res: DotResult) -> void:
+	runner.finished.connect(func(doc: GSProcGenDoc, res: GSResult) -> void:
 		done.append([doc, res])
 	)
 	var steps_seen := []
@@ -475,14 +475,14 @@ func _test_sliced_runner() -> void:
 	# The whole point of slicing between steps rather than inside one: a half-built
 	# document is data that is not finished, and a half-built world is one a player can
 	# walk into.
-	var sliced := done[0][0] as DotProcGenDoc
-	var blocking := DotProcGenRunner.new()
+	var sliced := done[0][0] as GSProcGenDoc
+	var blocking := GSProcGenRunner.new()
 	blocking.pipeline = _dungeon()
 	add_child(blocking)
 	var straight := blocking.generate_now(8080)
 	_check(straight.ok, "and generating in one go works too")
 	_check(
-		(straight.value as DotProcGenDoc).fingerprint() == sliced.fingerprint(),
+		(straight.value as GSProcGenDoc).fingerprint() == sliced.fingerprint(),
 		"producing exactly the same map, which is what makes slicing an implementation detail"
 	)
 

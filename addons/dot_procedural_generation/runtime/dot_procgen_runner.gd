@@ -1,19 +1,19 @@
-class_name DotProcGenRunner
+class_name GSProcGenRunner
 extends Node
 
 ## Runs a pipeline, either all at once or a step per frame.
 ##
 ## [codeblock]
-## var runner := DotProcGenRunner.new()
+## var runner := GSProcGenRunner.new()
 ## runner.pipeline = my_pipeline
 ## add_child(runner)
 ## runner.finished.connect(_build)
 ## runner.begin(seed)                  # sliced across frames
 ## [/codeblock]
 ##
-## [b]Sliced on the main thread, not threaded.[/b] `DotPlatform.has_threads()` is false on
+## [b]Sliced on the main thread, not threaded.[/b] `GSPlatform.has_threads()` is false on
 ## a web template that was not built for them, which is most of them, and a generator that
-## only works on desktop is one this family cannot ship — the same reason `DotScheduler`
+## only works on desktop is one this family cannot ship — the same reason `GSScheduler`
 ## slices inside a frame budget rather than assuming a worker.
 ##
 ## One step per frame is the granularity on purpose. A step is the unit that leaves the
@@ -26,9 +26,9 @@ const CHANNEL := "procgen"
 signal step_started(name: StringName, index: int, total: int)
 
 ## Generation finished. [param doc] is null when it failed.
-signal finished(doc: DotProcGenDoc, res: DotResult)
+signal finished(doc: GSProcGenDoc, res: GSResult)
 
-@export var pipeline: DotProcGenPipeline = null
+@export var pipeline: GSProcGenPipeline = null
 
 ## Milliseconds of one frame this may take before yielding.
 ##
@@ -38,8 +38,8 @@ signal finished(doc: DotProcGenDoc, res: DotResult)
 @export_range(1, 200, 1) var frame_budget_ms: int = 8
 
 var _running := false
-var _doc: DotProcGenDoc = null
-var _root: DotProcGenRandom = null
+var _doc: GSProcGenDoc = null
+var _root: GSProcGenRandom = null
 var _index := 0
 var _attempt := 0
 var _root_seed := 0
@@ -47,20 +47,20 @@ var _started_ms := 0
 
 
 ## Generates now, blocking. What a server and a suite want.
-func generate_now(seed_value: int) -> DotResult:
+func generate_now(seed_value: int) -> GSResult:
 	if pipeline == null:
-		return DotResult.fail(DotError.CODE_STATE, "no pipeline")
+		return GSResult.fail(GSError.CODE_STATE, "no pipeline")
 	var res := pipeline.generate(seed_value)
 	finished.emit(res.value_or(null), res)
 	return res
 
 
 ## Starts a sliced run. [signal finished] carries the result.
-func begin(seed_value: int) -> DotResult:
+func begin(seed_value: int) -> GSResult:
 	if pipeline == null:
-		return DotResult.fail(DotError.CODE_STATE, "no pipeline")
+		return GSResult.fail(GSError.CODE_STATE, "no pipeline")
 	if _running:
-		return DotResult.fail(DotError.CODE_STATE, "already generating")
+		return GSResult.fail(GSError.CODE_STATE, "already generating")
 	var res := pipeline.validate()
 	if not res.ok:
 		return res
@@ -72,7 +72,7 @@ func begin(seed_value: int) -> DotResult:
 	_running = true
 	_begin_attempt()
 	set_process(true)
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 func cancel() -> void:
@@ -92,13 +92,13 @@ func progress() -> float:
 
 
 func _begin_attempt() -> void:
-	var attempt_seed := DotProcGenRandom._mix(_root_seed ^ DotProcGenRandom._mix(_attempt))
-	_doc = DotProcGenDoc.new()
+	var attempt_seed := GSProcGenRandom._mix(_root_seed ^ GSProcGenRandom._mix(_attempt))
+	_doc = GSProcGenDoc.new()
 	_doc.resize(pipeline.width, pipeline.height)
 	_doc.meta["seed"] = _root_seed
 	_doc.meta["attempt"] = _attempt
 	_doc.meta["pipeline"] = String(pipeline.pipeline_name)
-	_root = DotProcGenRandom.new(attempt_seed, pipeline.pipeline_name)
+	_root = GSProcGenRandom.new(attempt_seed, pipeline.pipeline_name)
 	_index = 0
 
 
@@ -128,22 +128,22 @@ func _process(_delta: float) -> void:
 	_running = false
 	set_process(false)
 	_doc.meta["fingerprint"] = _doc.fingerprint()
-	finished.emit(_doc, DotResult.success(_doc))
+	finished.emit(_doc, GSResult.success(_doc))
 
 
-func _on_attempt_failed(res: DotResult) -> void:
+func _on_attempt_failed(res: GSResult) -> void:
 	_attempt += 1
 	if _attempt >= pipeline.max_attempts:
 		_running = false
 		set_process(false)
-		DotLog.warn(
+		GSLog.warn(
 			CHANNEL,
 			"generation gave up",
 			{"attempts": _attempt, "why": res.error.message}
 		)
 		finished.emit(null, res.wrap("gave up after %d attempts" % _attempt))
 		return
-	DotLog.debug(CHANNEL, "retrying on another seed", {"attempt": _attempt})
+	GSLog.debug(CHANNEL, "retrying on another seed", {"attempt": _attempt})
 	_begin_attempt()
 
 

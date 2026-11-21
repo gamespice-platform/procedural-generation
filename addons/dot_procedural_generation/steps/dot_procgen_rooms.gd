@@ -1,6 +1,6 @@
 @tool
-class_name DotProcGenRooms
-extends DotProcGenStep
+class_name GSProcGenRooms
+extends GSProcGenStep
 
 ## Carves rooms by binary space partition: split the area, put a room in each leaf.
 ##
@@ -11,7 +11,7 @@ extends DotProcGenStep
 ## made big, not a bug anybody can find.
 ##
 ## BSP also gives a tree, which is a connection plan for free: siblings are adjacent by
-## construction, so [DotProcGenConnect] never has to guess which rooms should be joined.
+## construction, so [GSProcGenConnect] never has to guess which rooms should be joined.
 
 ## Smallest a leaf may be before it stops splitting, in cells.
 @export_range(3, 200, 1) var min_leaf: int = 9
@@ -25,8 +25,8 @@ extends DotProcGenStep
 ## Fewest rooms that count as a success.
 @export_range(1, 500, 1) var min_rooms: int = 4
 
-@export var wall_value: int = DotProcGenDoc.SOLID
-@export var floor_value: int = DotProcGenDoc.FLOOR
+@export var wall_value: int = GSProcGenDoc.SOLID
+@export var floor_value: int = GSProcGenDoc.FLOOR
 
 
 func _fingerprint_keys() -> PackedStringArray:
@@ -35,17 +35,17 @@ func _fingerprint_keys() -> PackedStringArray:
 	])
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if min_leaf < 3:
-		return DotResult.fail(
-			DotError.CODE_INVALID, "a leaf below three cells cannot hold a room with walls"
+		return GSResult.fail(
+			GSError.CODE_INVALID, "a leaf below three cells cannot hold a room with walls"
 		)
 	if min_rooms < 1:
-		return DotResult.fail(DotError.CODE_INVALID, "a room step that wants no rooms")
-	return DotResult.success(null)
+		return GSResult.fail(GSError.CODE_INVALID, "a room step that wants no rooms")
+	return GSResult.success(null)
 
 
-func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
+func apply(doc: GSProcGenDoc, stream: GSProcGenRandom) -> GSResult:
 	doc.cells.fill(wall_value)
 	doc.rooms.clear()
 	doc.links.clear()
@@ -61,15 +61,15 @@ func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
 		doc.rooms.append(room)
 
 	if doc.rooms.size() < min_rooms:
-		return DotResult.fail(
-			DotError.CODE_STATE,
+		return GSResult.fail(
+			GSError.CODE_STATE,
 			"only %d rooms fitted, %d wanted" % [doc.rooms.size(), min_rooms],
 			"the map is too small for this leaf size, or the seed was unlucky"
 		)
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
-func _split(area: Rect2i, stream: DotProcGenRandom, out: Array[Rect2i], depth: int) -> void:
+func _split(area: Rect2i, stream: GSProcGenRandom, out: Array[Rect2i], depth: int) -> void:
 	# A depth cap as well as a size one. The size test alone is enough in theory and a
 	# recursion that cannot terminate is a frozen game rather than a bad map, so both.
 	if depth > 12 or (area.size.x < min_leaf * 2 and area.size.y < min_leaf * 2):
@@ -101,7 +101,7 @@ func _split(area: Rect2i, stream: DotProcGenRandom, out: Array[Rect2i], depth: i
 		)
 
 
-func _room_in(leaf: Rect2i, stream: DotProcGenRandom) -> Rect2i:
+func _room_in(leaf: Rect2i, stream: GSProcGenRandom) -> Rect2i:
 	var shrink_x := int(float(leaf.size.x) * stream.range_f(0.0, margin))
 	var shrink_y := int(float(leaf.size.y) * stream.range_f(0.0, margin))
 	# At least one cell of wall on every side, always. A room flush against the leaf edge

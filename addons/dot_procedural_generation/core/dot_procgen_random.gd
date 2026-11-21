@@ -1,8 +1,8 @@
-class_name DotProcGenRandom
+class_name GSProcGenRandom
 extends RefCounted
 
 ## A counter-based, splittable random stream: this addon's names over GameSpice Core's
-## [DotRandomStream], which draws every number.
+## [GSRandomStream], which draws every number.
 ##
 ## [b]A wrapper, not a second implementation, and it used to be one.[/b] It was written
 ## when the family's random stream lived in a separate addon (dot-randomness) that this one
@@ -12,7 +12,7 @@ extends RefCounted
 ## [method range_i], [method shuffled]) are kept because every generator step calls them.
 ##
 ## What a game's seed source gives this addon is still only the [b]seed[/b]:
-## [member DotProcGenPipeline.seed_source] asks any object with [code]seed_for(name)[/code]
+## [member GSProcGenPipeline.seed_source] asks any object with [code]seed_for(name)[/code]
 ## for a number, so a generated world comes out of the session's own seed.
 ##
 ## The design is the important half:
@@ -24,26 +24,26 @@ extends RefCounted
 ##   other, which is what lets a step be added to a pipeline without changing the map the
 ##   steps before it produced.
 
-var _s: DotRandomStream
+var _s: GSRandomStream
 
 
 func _init(p_seed: int = 0, p_name: StringName = &"") -> void:
-	_s = DotRandomStream.new(p_seed, p_name)
+	_s = GSRandomStream.new(p_seed, p_name)
 
 
-static func _wrap(inner: DotRandomStream) -> DotProcGenRandom:
-	var out := DotProcGenRandom.new()
+static func _wrap(inner: GSRandomStream) -> GSProcGenRandom:
+	var out := GSProcGenRandom.new()
 	out._s = inner
 	return out
 
 
-func stream(name: StringName) -> DotProcGenRandom:
+func stream(name: StringName) -> GSProcGenRandom:
 	return _wrap(_s.stream(name))
 
 
 ## The stream underneath, for a step that wants GameSpice Core's wider vocabulary
-## ([method DotRandomStream.next_gaussian], [method DotRandomStream.next_weighted]).
-func core() -> DotRandomStream:
+## ([method GSRandomStream.next_gaussian], [method GSRandomStream.next_weighted]).
+func core() -> GSRandomStream:
 	return _s
 
 
@@ -94,4 +94,4 @@ func counter() -> int:
 ## GameSpice Core's mixer, under the name the pipeline's retry seeding has always called. Kept so
 ## a retry's seed (mix(root ^ mix(attempt))) is exactly what it was.
 static func _mix(x: int) -> int:
-	return DotRandomStream._mix(x)
+	return GSRandomStream._mix(x)

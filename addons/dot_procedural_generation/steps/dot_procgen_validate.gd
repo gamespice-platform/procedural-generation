@@ -1,6 +1,6 @@
 @tool
-class_name DotProcGenValidate
-extends DotProcGenStep
+class_name GSProcGenValidate
+extends GSProcGenStep
 
 ## Floods the document from a marker and refuses a map that cannot be finished.
 ##
@@ -17,7 +17,7 @@ extends DotProcGenStep
 ## finished, because every assertion was about a zone existing and none was about the zones
 ## adding up to a run. *A map that loads is not a level.*
 ##
-## Failing here is not a crash. [DotProcGenPipeline] catches it and tries another seed.
+## Failing here is not a crash. [GSProcGenPipeline] catches it and tries another seed.
 
 ## The marker the flood starts from.
 @export var from_kind: StringName = &"spawn"
@@ -51,19 +51,19 @@ func _fingerprint_keys() -> PackedStringArray:
 	])
 
 
-func apply(doc: DotProcGenDoc, _stream: DotProcGenRandom) -> DotResult:
+func apply(doc: GSProcGenDoc, _stream: GSProcGenRandom) -> GSResult:
 	var starts := doc.markers_of(from_kind)
 	if starts.is_empty():
-		return DotResult.fail(
-			DotError.CODE_STATE,
+		return GSResult.fail(
+			GSError.CODE_STATE,
 			"nothing to flood from: no '%s' marker" % from_kind,
 			"a validate step placed after nothing that places a start has nothing to check"
 		)
 
 	var start: Vector2i = starts[0].get("cell", Vector2i.ZERO)
 	if not doc.is_walkable(start.x, start.y):
-		return DotResult.fail(
-			DotError.CODE_STATE,
+		return GSResult.fail(
+			GSError.CODE_STATE,
 			"the '%s' marker is inside a wall" % from_kind,
 			"at %d,%d" % [start.x, start.y]
 		)
@@ -82,8 +82,8 @@ func apply(doc: DotProcGenDoc, _stream: DotProcGenRandom) -> DotResult:
 	if walkable > 0:
 		var fraction := float(reached.size()) / float(walkable)
 		if fraction < min_connected_fraction:
-			return DotResult.fail(
-				DotError.CODE_STATE,
+			return GSResult.fail(
+				GSError.CODE_STATE,
 				"only %.0f%% of the walkable space is reachable" % (fraction * 100.0),
 				"a map that is connected and mostly wasted reads as a generator making small maps"
 			)
@@ -95,8 +95,8 @@ func apply(doc: DotProcGenDoc, _stream: DotProcGenRandom) -> DotResult:
 		var cell: Vector2i = m.get("cell", Vector2i.ZERO)
 		var idx := cell.y * doc.width + cell.x
 		if not reachable.has(idx):
-			return DotResult.fail(
-				DotError.CODE_STATE,
+			return GSResult.fail(
+				GSError.CODE_STATE,
 				"'%s' at %d,%d cannot be reached from the start" % [kind, cell.x, cell.y]
 			)
 
@@ -108,10 +108,10 @@ func apply(doc: DotProcGenDoc, _stream: DotProcGenRandom) -> DotResult:
 					continue
 				if reachable.has(y * doc.width + x):
 					continue
-				doc.set_at(x, y, DotProcGenDoc.SOLID)
+				doc.set_at(x, y, GSProcGenDoc.SOLID)
 				filled += 1
 		if filled > 0:
 			doc.meta["unreachable_filled"] = filled
 
 	doc.meta["reachable_cells"] = reached.size()
-	return DotResult.success(null)
+	return GSResult.success(null)

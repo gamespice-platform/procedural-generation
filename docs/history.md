@@ -4,7 +4,7 @@ What building it found. The rules they left are in [CLAUDE.md](../CLAUDE.md).
 
 ## An untyped array literal in a `for` loop is a parse error
 
-`for d in [Vector2i(1,0), ...]` gives `d` as a Variant, `x + d.x` is then a Variant, and `var nx := x + d.x` fails with "Cannot infer the type of nx", pointing at the variable rather than the literal three lines up. Every script in the addon failed to compile behind it. `const NEIGHBOURS: Array[Vector2i]` in `DotProcGenDoc` is the fix, and worth doing for its own sake. The general trap is in [gdscript-hazards.md](../../../docs/gdscript-hazards.md).
+`for d in [Vector2i(1,0), ...]` gives `d` as a Variant, `x + d.x` is then a Variant, and `var nx := x + d.x` fails with "Cannot infer the type of nx", pointing at the variable rather than the literal three lines up. Every script in the addon failed to compile behind it. `const NEIGHBOURS: Array[Vector2i]` in `GSProcGenDoc` is the fix, and worth doing for its own sake. The general trap is in [gdscript-hazards.md](../../../docs/gdscript-hazards.md).
 
 ## `Rect2i` is end-exclusive
 
@@ -12,4 +12,4 @@ What building it found. The rules they left are in [CLAUDE.md](../CLAUDE.md).
 
 ## The second random stream (removed 2026-10-10)
 
-`DotProcGenRandom` carried its own SplitMix64 copy because the family's stream lived in dot-randomness, which this addon could not depend on. When dot-randomness folded into GameSpice Core the reason went away and the copy stayed. Converting was held back on the belief that it would change every generated map; comparing the two over five seeds and 800 draws each (raw, unit, range and chance) found them identical, because both were written from the same design with the same constants. It is now a wrapper over `DotRandomStream`, and no seed's map changed.
+`GSProcGenRandom` carried its own SplitMix64 copy because the family's stream lived in dot-randomness, which this addon could not depend on. When dot-randomness folded into GameSpice Core the reason went away and the copy stayed. Converting was held back on the belief that it would change every generated map; comparing the two over five seeds and 800 draws each (raw, unit, range and chance) found them identical, because both were written from the same design with the same constants. It is now a wrapper over `GSRandomStream`, and no seed's map changed.

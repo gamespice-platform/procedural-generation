@@ -2,7 +2,7 @@
 
 Generated levels as an ordered pipeline of deterministic steps, with a validator that rejects maps nobody could finish.
 
-The pipeline produces a document (`DotProcGenDoc`: a grid, rooms, links and markers), not nodes. Your game turns the document into a world. This means:
+The pipeline produces a document (`GSProcGenDoc`: a grid, rooms, links and markers), not nodes. Your game turns the document into a world. This means:
 
 - Two machines can agree on a map by comparing a seed and `fingerprint()`.
 - "Is it finishable?" is a flood fill you can ask.
@@ -19,7 +19,7 @@ Only GameSpice Core is required.
 ## Use
 
 ```gdscript
-var p := DotProcGenPipeline.new()
+var p := GSProcGenPipeline.new()
 p.width = 64
 p.height = 64
 p.add(rooms).add(corridors).add(spawns).add(validate)
@@ -27,7 +27,7 @@ p.seed_source = rng                       # optional; takes the session's seed
 
 var res := p.generate(seed)
 if res.ok:
-    build(res.value as DotProcGenDoc)
+    build(res.value as GSProcGenDoc)
 ```
 
 To spread the work over frames (on the main thread, so it works in web exports without threads):
@@ -44,18 +44,18 @@ Sliced and blocking runs give exactly the same map.
 
 | Step | Purpose |
 | --- | --- |
-| `DotProcGenRooms` | Places rooms. |
-| `DotProcGenCave` | Cellular-automata caves. |
-| `DotProcGenConnect` | Joins rooms with a minimum spanning tree, then adds `extra_loops` more corridors so the level has loops. |
-| `DotProcGenMarkers` | Places spawns, objectives and other markers. |
-| `DotProcGenValidate` | Refuses unplayable maps. |
+| `GSProcGenRooms` | Places rooms. |
+| `GSProcGenCave` | Cellular-automata caves. |
+| `GSProcGenConnect` | Joins rooms with a minimum spanning tree, then adds `extra_loops` more corridors so the level has loops. |
+| `GSProcGenMarkers` | Places spawns, objectives and other markers. |
+| `GSProcGenValidate` | Refuses unplayable maps. |
 
 ## The validator
 
 Caves can seal off pockets, and a scattered objective can land in a room with no door. The validator catches this.
 
 ```gdscript
-var check := DotProcGenValidate.new()
+var check := GSProcGenValidate.new()
 check.from_kind = &"spawn"
 check.min_connected_fraction = 0.6
 check.fill_unreachable = true          # usually better than failing
@@ -65,7 +65,7 @@ A failure is not a crash: the pipeline retries with another seed, up to `max_att
 
 ## Random streams
 
-Each step draws from its own named stream (`DotProcGenRandom` hashes the name). Adding a step does not change the output of steps before it, so shared seeds keep producing the same map. A game's own randomness addon supplies only the seed, through `seed_source`.
+Each step draws from its own named stream (`GSProcGenRandom` hashes the name). Adding a step does not change the output of steps before it, so shared seeds keep producing the same map. A game's own randomness addon supplies only the seed, through `seed_source`.
 
 ## Debugging
 

@@ -10,7 +10,7 @@ A generator that instantiates as it goes cannot be compared between two machines
 
 Generation is easy; generation that cannot produce an unplayable round is the problem. The family has the lesson from the other direction: eight imported maps passed every assertion about their zones while five of them could not be finished, because every assertion was about a zone existing and none about the zones adding up to a run ([bugs-found](../../../docs/bugs-found.md#found-by-running-the-examples)). *A map that loads is not a level.*
 
-`DotProcGenValidate` floods from a marker and refuses:
+`GSProcGenValidate` floods from a marker and refuses:
 
 - a marker that cannot be reached from the start (`must_reach`),
 - a start inside a wall,
@@ -22,26 +22,26 @@ A refusal is caught by the pipeline, which retries up to `max_attempts`. **The a
 
 ## One stream per step
 
-With a single shared generator, inserting a step anywhere shifts every later number: adding a rubble pass at the end changes the room layout, a shared seed stops producing the shared map, and last week's replay plays back as a different world. `DotProcGenRandom.stream(name)` hashes the name into the key, so two steps never disturb each other however much either draws; the suite asserts 500 draws from one step's stream leave another's untouched.
+With a single shared generator, inserting a step anywhere shifts every later number: adding a rubble pass at the end changes the room layout, a shared seed stops producing the shared map, and last week's replay plays back as a different world. `GSProcGenRandom.stream(name)` hashes the name into the key, so two steps never disturb each other however much either draws; the suite asserts 500 draws from one step's stream leave another's untouched.
 
-**Two steps may not share a name**: `DotProcGenPipeline.validate()` refuses it. Two steps with one name share one stream, so the second continues where the first left off, and reordering them changes both.
+**Two steps may not share a name**: `GSProcGenPipeline.validate()` refuses it. Two steps with one name share one stream, so the second continues where the first left off, and reordering them changes both.
 
-The design is counter-based and splittable by name, with 53 bits in a unit and a logical right shift (GDScript's `>>` is arithmetic, so the top of the mixer's output is otherwise a run of ones for half of every value). What crosses into a game is a **seed**, through `DotProcGenPipeline.seed_source`, duck-typed on `seed_for(name)`; GameSpice Core's `DotRandomManager` answers it. `DotProcGenRandom` is a wrapper over GameSpice Core's `DotRandomStream`, which draws every number ([history](history.md#the-second-random-stream-removed-2026-10-10)).
+The design is counter-based and splittable by name, with 53 bits in a unit and a logical right shift (GDScript's `>>` is arithmetic, so the top of the mixer's output is otherwise a run of ones for half of every value). What crosses into a game is a **seed**, through `GSProcGenPipeline.seed_source`, duck-typed on `seed_for(name)`; GameSpice Core's `GSRandomManager` answers it. `GSProcGenRandom` is a wrapper over GameSpice Core's `GSRandomStream`, which draws every number ([history](history.md#the-second-random-stream-removed-2026-10-10)).
 
 ## The pieces
 
 | | |
 | --- | --- |
-| `DotProcGenDoc` | The grid, the rooms, the links, the markers; `reachable_from`, `fingerprint`, `to_ascii`. |
-| `DotProcGenRandom` | This addon's names over GameSpice Core's counter-based splittable `DotRandomStream`. |
-| `DotProcGenStep` | One pass. Declares its own fingerprint keys. |
-| `DotProcGenRooms` | BSP. A connection plan for free, and no slower as the map fills. |
-| `DotProcGenCave` | Cellular automata. Produces sealed pockets by construction. |
-| `DotProcGenConnect` | A spanning tree, plus loops on purpose. |
-| `DotProcGenMarkers` | Where things go. One step configured, not a class per kind. |
-| `DotProcGenValidate` | The step that makes this shippable. |
-| `DotProcGenPipeline` | The list, the retries and the fingerprint. |
-| `DotProcGenRunner` | A step per frame, on the main thread. |
+| `GSProcGenDoc` | The grid, the rooms, the links, the markers; `reachable_from`, `fingerprint`, `to_ascii`. |
+| `GSProcGenRandom` | This addon's names over GameSpice Core's counter-based splittable `GSRandomStream`. |
+| `GSProcGenStep` | One pass. Declares its own fingerprint keys. |
+| `GSProcGenRooms` | BSP. A connection plan for free, and no slower as the map fills. |
+| `GSProcGenCave` | Cellular automata. Produces sealed pockets by construction. |
+| `GSProcGenConnect` | A spanning tree, plus loops on purpose. |
+| `GSProcGenMarkers` | Where things go. One step configured, not a class per kind. |
+| `GSProcGenValidate` | The step that makes this shippable. |
+| `GSProcGenPipeline` | The list, the retries and the fingerprint. |
+| `GSProcGenRunner` | A step per frame, on the main thread. |
 
 ## Decisions
 
@@ -53,11 +53,11 @@ The design is counter-based and splittable by name, with 53 bits in a unit and a
 
 **Slicing is between steps, never inside one.** A step is the unit that leaves the document consistent; half a carving pass is a document with a partial room in it. The suite asserts the sliced and the blocking runs produce the **same fingerprint**, which makes slicing an implementation detail rather than a second code path.
 
-**Main thread, not a worker.** `DotPlatform.has_threads()` is false on most web templates. `DotProcGenRunner` slices inside `frame_budget_ms`, for the reason `DotScheduler` does.
+**Main thread, not a worker.** `GSPlatform.has_threads()` is false on most web templates. `GSProcGenRunner` slices inside `frame_budget_ms`, for the reason `GSScheduler` does.
 
 ## Deliberately not here
 
 - **A builder.** Turning a grid into a `TileMap`, a `GridMap` or extruded geometry is the game's. `to_ascii()` is the debugging one.
 - **Noise terrain.** `FastNoiseLite` takes an explicit seed and is deterministic; a heightmap step would be a thin wrapper a game writes in six lines.
-- **Wave function collapse.** A good algorithm and a large one, wanting a tile-adjacency format that is a project in itself. `DotProcGenStep` is the extension point.
+- **Wave function collapse.** A good algorithm and a large one, wanting a tile-adjacency format that is a project in itself. `GSProcGenStep` is the extension point.
 - **Networking.** The seed and the fingerprint are two values a game sends through the transport it already has.

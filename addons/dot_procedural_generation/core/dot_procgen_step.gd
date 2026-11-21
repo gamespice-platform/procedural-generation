@@ -1,5 +1,5 @@
 @tool
-class_name DotProcGenStep
+class_name GSProcGenStep
 extends Resource
 
 ## One pass over the document. A pipeline is a list of these.
@@ -8,7 +8,7 @@ extends Resource
 ## makes a pipeline editable. With one shared generator, inserting a step anywhere shifts
 ## every later random number, so adding a "scatter some rubble" pass changes the room
 ## layout and a seed somebody shared stops producing the map they shared it for.
-## [DotProcGenRandom] derives a child stream by hashing a name, and two children never disturb
+## [GSProcGenRandom] derives a child stream by hashing a name, and two children never disturb
 ## each other however often either is used, so a step added at the end changes nothing
 ## before it.
 ##
@@ -32,13 +32,13 @@ extends Resource
 
 
 ## Does the work. [param stream] is this step's own.
-func apply(_doc: DotProcGenDoc, _stream: DotProcGenRandom) -> DotResult:
-	return DotResult.fail(DotError.CODE_UNSUPPORTED, "this step does nothing")
+func apply(_doc: GSProcGenDoc, _stream: GSProcGenRandom) -> GSResult:
+	return GSResult.fail(GSError.CODE_UNSUPPORTED, "this step does nothing")
 
 
 ## Checked before a run starts, so a malformed pipeline fails at boot.
-func validate() -> DotResult:
-	return DotResult.success(null)
+func validate() -> GSResult:
+	return GSResult.success(null)
 
 
 ## What this step contributes to a pipeline's fingerprint.

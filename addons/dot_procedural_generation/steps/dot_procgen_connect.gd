@@ -1,6 +1,6 @@
 @tool
-class_name DotProcGenConnect
-extends DotProcGenStep
+class_name GSProcGenConnect
+extends GSProcGenStep
 
 ## Joins every room to every other, and then adds a few loops on purpose.
 ##
@@ -28,19 +28,19 @@ extends DotProcGenStep
 ## Whether corridors turn once (L-shaped) or go straight.
 @export var elbow: bool = true
 
-@export var floor_value: int = DotProcGenDoc.FLOOR
+@export var floor_value: int = GSProcGenDoc.FLOOR
 
 
 func _fingerprint_keys() -> PackedStringArray:
 	return PackedStringArray(["extra_loops", "corridor_width", "elbow", "floor_value"])
 
 
-func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
+func apply(doc: GSProcGenDoc, stream: GSProcGenRandom) -> GSResult:
 	if doc.rooms.size() < 2:
 		# One room is already connected. Not a failure: a cave pipeline with no rooms in
 		# it is a legitimate thing to run this step after, and refusing would make the
 		# step order matter for no reason.
-		return DotResult.success(null)
+		return GSResult.success(null)
 
 	var centres: Array[Vector2i] = []
 	for r in doc.rooms:
@@ -86,10 +86,10 @@ func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
 		doc.links.append(pair)
 		_carve(doc, centres[a], centres[b], stream)
 
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
-func _carve(doc: DotProcGenDoc, from: Vector2i, to: Vector2i, stream: DotProcGenRandom) -> void:
+func _carve(doc: GSProcGenDoc, from: Vector2i, to: Vector2i, stream: GSProcGenRandom) -> void:
 	var corner := Vector2i(to.x, from.y) if stream.chance(0.5) else Vector2i(from.x, to.y)
 	if not elbow:
 		corner = from
@@ -97,7 +97,7 @@ func _carve(doc: DotProcGenDoc, from: Vector2i, to: Vector2i, stream: DotProcGen
 	_line(doc, corner, to)
 
 
-func _line(doc: DotProcGenDoc, a: Vector2i, b: Vector2i) -> void:
+func _line(doc: GSProcGenDoc, a: Vector2i, b: Vector2i) -> void:
 	var half := corridor_width / 2
 	var step := Vector2i(signi(b.x - a.x), signi(b.y - a.y))
 	var at := a
@@ -112,7 +112,7 @@ func _line(doc: DotProcGenDoc, a: Vector2i, b: Vector2i) -> void:
 	_brush(doc, b, half)
 
 
-func _brush(doc: DotProcGenDoc, at: Vector2i, half: int) -> void:
+func _brush(doc: GSProcGenDoc, at: Vector2i, half: int) -> void:
 	for dy in range(-half, half + 1):
 		for dx in range(-half, half + 1):
 			# The border is left alone. A corridor that reaches the edge of the document

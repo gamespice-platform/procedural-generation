@@ -4,7 +4,7 @@ Generation that produces a document, and refuses one nobody could finish: rooms 
 
 Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is specific to procedural generation.
 
-**The distributable is `addons/dot_procedural_generation/`.** It requires [GameSpice Core](../dot-core) and nothing else (`ln -s ../../dot-core/addons/dot_core addons/dot_core`, gitignored). The classes are `DotProcGen*`. The folder is not `dot_procgen` because bootstrap and dot-ci map an addon folder to its repository by replacing `_` with `-` (the weapon pack is the one listed exception), and a shorter folder would need another.
+**The distributable is `addons/dot_procedural_generation/`.** It requires [GameSpice Core](../dot-core) and nothing else (`ln -s ../../dot-core/addons/dot_core addons/dot_core`, gitignored). The classes are `GSProcGen*`. The folder is not `dot_procgen` because bootstrap and dot-ci map an addon folder to its repository by replacing `_` with `-` (the weapon pack is the one listed exception), and a shorter folder would need another.
 
 ## Read before
 
@@ -17,12 +17,12 @@ Read the family [CLAUDE.md](../../CLAUDE.md) first; this file is only what is sp
 
 | Path | What |
 | --- | --- |
-| `core/dot_procgen_doc.gd` | `DotProcGenDoc`: grid, rooms, links, markers; `reachable_from`, `fingerprint`, `to_ascii` |
-| `core/dot_procgen_random.gd` | `DotProcGenRandom`: this addon's names over GameSpice Core's `DotRandomStream`, which draws every number; `core()` reaches the stream |
-| `core/dot_procgen_step.gd` | `DotProcGenStep`: one pass, the extension point |
-| `core/dot_procgen_pipeline.gd` | `DotProcGenPipeline`: steps, `validate()`, retries (`max_attempts`), `seed_source` |
-| `steps/` | `DotProcGenRooms`, `...Cave`, `...Connect` (`extra_loops`), `...Markers`, `...Validate` (`fill_unreachable`, `min_connected_fraction`) |
-| `runtime/dot_procgen_runner.gd` | `DotProcGenRunner`: a step per frame within `frame_budget_ms` |
+| `core/dot_procgen_doc.gd` | `GSProcGenDoc`: grid, rooms, links, markers; `reachable_from`, `fingerprint`, `to_ascii` |
+| `core/dot_procgen_random.gd` | `GSProcGenRandom`: this addon's names over GameSpice Core's `GSRandomStream`, which draws every number; `core()` reaches the stream |
+| `core/dot_procgen_step.gd` | `GSProcGenStep`: one pass, the extension point |
+| `core/dot_procgen_pipeline.gd` | `GSProcGenPipeline`: steps, `validate()`, retries (`max_attempts`), `seed_source` |
+| `steps/` | `GSProcGenRooms`, `...Cave`, `...Connect` (`extra_loops`), `...Markers`, `...Validate` (`fill_unreachable`, `min_connected_fraction`) |
+| `runtime/dot_procgen_runner.gd` | `GSProcGenRunner`: a step per frame within `frame_budget_ms` |
 | `examples/procgen_selftest.tscn` | the suite |
 
 Paths except `examples/` are in `addons/dot_procedural_generation/`.
@@ -35,8 +35,8 @@ The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything))
 
 ## Rules that bite
 
-- Generation produces a `DotProcGenDoc`; nodes are the game's builder. Peers compare `fingerprint()` and the seed. [design](docs/design.md#why-a-document)
-- Every pipeline that ships ends in `DotProcGenValidate`; prefer `fill_unreachable` to failing. [design](docs/design.md#the-validator-is-the-whole-point)
+- Generation produces a `GSProcGenDoc`; nodes are the game's builder. Peers compare `fingerprint()` and the seed. [design](docs/design.md#why-a-document)
+- Every pipeline that ships ends in `GSProcGenValidate`; prefer `fill_unreachable` to failing. [design](docs/design.md#the-validator-is-the-whole-point)
 - A retry mixes the attempt into the seed; never `seed + attempt`. [design](docs/design.md#the-validator-is-the-whole-point)
 - Each step draws from `stream(its name)`; no two steps share a name (`validate()` refuses). [design](docs/design.md#one-stream-per-step)
 - A step's settings go in its declared fingerprint keys. [design](docs/design.md#the-pieces)
@@ -44,6 +44,6 @@ The family's two steps ([family CLAUDE.md](../../CLAUDE.md#validating-anything))
 - Slice only between steps, on the main thread; sliced and blocking runs must give the same fingerprint. [design](docs/design.md#decisions)
 - Type array literals you iterate (`const X: Array[Vector2i]`); `Rect2i` is end-exclusive. [history](docs/history.md)
 
-- `DotProcGenRandom` draws nothing itself: it wraps GameSpice Core's `DotRandomStream`. Never give it its own mixer again. [history](docs/history.md)
+- `GSProcGenRandom` draws nothing itself: it wraps GameSpice Core's `GSRandomStream`. Never give it its own mixer again. [history](docs/history.md)
 
 Deliberately not here: a builder, noise terrain, wave function collapse, networking. [design](docs/design.md#deliberately-not-here)

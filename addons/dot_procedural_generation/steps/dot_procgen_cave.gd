@@ -1,6 +1,6 @@
 @tool
-class_name DotProcGenCave
-extends DotProcGenStep
+class_name GSProcGenCave
+extends GSProcGenStep
 
 ## Cellular automata: noise, then smooth it until it looks like caves.
 ##
@@ -9,7 +9,7 @@ extends DotProcGenStep
 ##
 ## [b]It produces disconnected caverns, always.[/b] Smoothing noise makes pockets, and
 ## some of them are sealed. That is not a bug to be tuned out — it is what the algorithm
-## is — and the answer is [DotProcGenConnect] or [DotProcGenValidate] afterwards, not a
+## is — and the answer is [GSProcGenConnect] or [GSProcGenValidate] afterwards, not a
 ## better rule. A generator that ships this step alone ships unreachable treasure.
 ##
 ## [b]The iteration order matters and must not be in place.[/b] Reading the grid you are
@@ -39,13 +39,13 @@ func _fingerprint_keys() -> PackedStringArray:
 	])
 
 
-func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
+func apply(doc: GSProcGenDoc, stream: GSProcGenRandom) -> GSResult:
 	for y in range(doc.height):
 		for x in range(doc.width):
 			var solid := stream.chance(fill_chance)
 			if solid_border and (x == 0 or y == 0 or x == doc.width - 1 or y == doc.height - 1):
 				solid = true
-			doc.set_at(x, y, DotProcGenDoc.SOLID if solid else DotProcGenDoc.FLOOR)
+			doc.set_at(x, y, GSProcGenDoc.SOLID if solid else GSProcGenDoc.FLOOR)
 
 	for _i in range(iterations):
 		# Written into a copy. Smoothing in place makes every cell see its left
@@ -55,30 +55,30 @@ func apply(doc: DotProcGenDoc, stream: DotProcGenRandom) -> DotResult:
 		for y in range(doc.height):
 			for x in range(doc.width):
 				var n := _solid_neighbours(doc, x, y)
-				var was_solid := doc.at(x, y) == DotProcGenDoc.SOLID
+				var was_solid := doc.at(x, y) == GSProcGenDoc.SOLID
 				var now_solid := n >= (death_limit if was_solid else birth_limit)
 				if solid_border and (x == 0 or y == 0 or x == doc.width - 1 or y == doc.height - 1):
 					now_solid = true
-				next[y * doc.width + x] = DotProcGenDoc.SOLID if now_solid else DotProcGenDoc.FLOOR
+				next[y * doc.width + x] = GSProcGenDoc.SOLID if now_solid else GSProcGenDoc.FLOOR
 		doc.cells = next
 
-	if doc.count_of(DotProcGenDoc.FLOOR) < 8:
-		return DotResult.fail(
-			DotError.CODE_STATE,
+	if doc.count_of(GSProcGenDoc.FLOOR) < 8:
+		return GSResult.fail(
+			GSError.CODE_STATE,
 			"the cave came out almost solid",
 			"fill_chance %.2f with birth_limit %d closes everything" % [fill_chance, birth_limit]
 		)
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
-func _solid_neighbours(doc: DotProcGenDoc, x: int, y: int) -> int:
+func _solid_neighbours(doc: GSProcGenDoc, x: int, y: int) -> int:
 	var n := 0
 	for dy in range(-1, 2):
 		for dx in range(-1, 2):
 			if dx == 0 and dy == 0:
 				continue
-			# Out of bounds counts as solid, which is what DotProcGenDoc.at already
+			# Out of bounds counts as solid, which is what GSProcGenDoc.at already
 			# answers -- and is what keeps a cave from opening onto nothing at the edge.
-			if doc.at(x + dx, y + dy) == DotProcGenDoc.SOLID:
+			if doc.at(x + dx, y + dy) == GSProcGenDoc.SOLID:
 				n += 1
 	return n
