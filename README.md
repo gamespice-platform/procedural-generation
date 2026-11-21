@@ -11,7 +11,7 @@ The pipeline produces a document (`GSProcGenDoc`: a grid, rooms, links and marke
 
 ## Install
 
-1. Copy `addons/dot_procedural_generation/` and [GameSpice Core](https://github.com/gamespice-platform/core)'s `addons/dot_core/` into your project.
+1. Copy `addons/gs_procedural_generation/` and [GameSpice Core](https://github.com/gamespice-platform/core)'s `addons/gs_core/` into your project.
 2. Enable it in *Project > Project Settings > Plugins*.
 
 Only GameSpice Core is required.

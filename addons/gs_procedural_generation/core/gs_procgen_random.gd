@@ -5,7 +5,7 @@ extends RefCounted
 ## [GSRandomStream], which draws every number.
 ##
 ## [b]A wrapper, not a second implementation, and it used to be one.[/b] It was written
-## when the family's random stream lived in a separate addon (dot-randomness) that this one
+## when the family's random stream lived in a separate addon (gs-randomness) that this one
 ## could not depend on, so it carried its own copy of the same SplitMix64 mixer. That
 ## addon folded into GameSpice Core, which every addon may depend on, and two copies of one
 ## algorithm are two chances for them to drift. The names here ([method unit],

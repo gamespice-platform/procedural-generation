@@ -1,6 +1,6 @@
 extends Node
 
-## Exercises dot-procedural-generation with no scene tree and no builder.
+## Exercises gs-procedural-generation with no scene tree and no builder.
 ##
 ## [b]The checks that matter are the ones about a map being finishable[/b], because every
 ## other kind passes for a map nobody can complete. This family has that lesson from the
@@ -26,7 +26,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	_line("dot-procedural-generation self-test")
+	_line("gs-procedural-generation self-test")
 	_line("")
 
 	_test_document()

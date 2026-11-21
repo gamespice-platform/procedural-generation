@@ -149,7 +149,7 @@ func _on_attempt_failed(res: GSResult) -> void:
 
 func describe_lines() -> PackedStringArray:
 	var out := PackedStringArray()
-	out.append("dot-procgen  %s" % ("running" if _running else "idle"))
+	out.append("gs-procgen  %s" % ("running" if _running else "idle"))
 	if _running:
 		out.append("  attempt %d, step %d of %d" % [
 			_attempt + 1, _index, pipeline.steps.size()

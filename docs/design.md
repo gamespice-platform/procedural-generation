@@ -1,10 +1,10 @@
 # Design
 
-Why dot-procedural-generation is shaped the way it is. The one-line rules are in [CLAUDE.md](../CLAUDE.md).
+Why gs-procedural-generation is shaped the way it is. The one-line rules are in [CLAUDE.md](../CLAUDE.md).
 
 ## Why a document
 
-A generator that instantiates as it goes cannot be compared between two machines, cannot be asserted on by a suite, cannot serve 2D and 3D from one implementation, and cannot be paused half-way. All four land on the design dot-loadout and dot-user-avatar already use: **data first, nodes later, and the builder is the game's.** The first decides it: two peers that both generate cannot compare scene trees; they compare `fingerprint()` and a seed, and the whole comparison is thirty-two characters.
+A generator that instantiates as it goes cannot be compared between two machines, cannot be asserted on by a suite, cannot serve 2D and 3D from one implementation, and cannot be paused half-way. All four land on the design gs-loadout and gs-user-avatar already use: **data first, nodes later, and the builder is the game's.** The first decides it: two peers that both generate cannot compare scene trees; they compare `fingerprint()` and a seed, and the whole comparison is thirty-two characters.
 
 ## The validator is the whole point
 

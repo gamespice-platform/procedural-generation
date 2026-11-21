@@ -6,13 +6,13 @@ extends EditorPlugin
 ## No autoloads: a server generating the next map while the current one is still being
 ## played is two runners in one process, and a global would make them one.
 
-const _ICON := "res://addons/dot_procedural_generation/icon_placeholder.svg"
+const _ICON := "res://addons/gs_procedural_generation/icon_placeholder.svg"
 
 const _TYPES := [
 	[
 		"GSProcGenRunner",
 		"Node",
-		"res://addons/dot_procedural_generation/runtime/dot_procgen_runner.gd",
+		"res://addons/gs_procedural_generation/runtime/gs_procgen_runner.gd",
 	],
 ]
 
