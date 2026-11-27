@@ -75,6 +75,10 @@ See [docs/design.md](docs/design.md) and [docs/history.md](docs/history.md). The
 
 ## Used by
 
+### Zee's Games
+
+Zee's Games is a collection of games I made on GameSpice, for demonstration and for fun. They show what the platform can do, and they run on live servers you can join. Anybody can create games on GameSpice, and each addon is its own repository and can be used separately from the games and from the rest of GameSpice.
+
 One game vendors it, for a generated sandbox map:
 
 - [Playlot](https://zeesgames.com/playlot) - builds its generated sandbox level from a pipeline document
