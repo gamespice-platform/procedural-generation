@@ -73,8 +73,16 @@ Each step draws from its own named stream (`GSProcGenRandom` hashes the name). A
 
 See [docs/design.md](docs/design.md) and [docs/history.md](docs/history.md). The self-test is `examples/procgen_selftest.tscn`.
 
+## Used by
+
+One game vendors it, for a generated sandbox map:
+
+- [Playlot](https://zeesgames.com/playlot) - builds its generated sandbox level from a pipeline document
+
+The whole collection is at [zeesgames.com](https://zeesgames.com).
+
 ## Status and licence
 
-Part of the [**GameSpice**](https://gamespice.net) platform: a family of Godot addons. Written with Claude Code and maintained by `gamemann`. Every addon has headless tests, but little of this has been played by real users yet, so expect rough edges and please [open an issue](https://github.com/gamespice-platform/procedural-generation/issues) when you hit one.
+Part of the [**GameSpice**](https://gamespice.net) platform: a family of Godot addons, MIT licensed and built with Claude Code. `res://examples/procgen_selftest.tscn` is the headless suite. The games in [Zee's Games](https://zeesgames.com) are built on GameSpice addons and run on live servers; this addon has one user among them. Please [open an issue](https://github.com/gamespice-platform/procedural-generation/issues) if you find a bug.
 
 MIT licence, see [LICENSE](LICENSE). The only closed part of the [**GameSpice**](https://gamespice.net) platform is the web back end; you can use your own instead of GameSpice's.
